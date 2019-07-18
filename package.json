@@ -1,0 +1,33 @@
+{
+  "name": "node-red-contrib-diameter",
+  "version": "0.0.1",
+  "description": "A node-red node for send messages to server using the diameter base protocol.",
+  "dependencies": {
+    "diameter": "^0.9.5",
+    "diameter-avp-object": "^1.1.0"
+  },
+  "author": {
+    "name": "Markus Korporal",
+    "email": "markus@korporal.de"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node-red",
+    "android",
+    "iot",
+    "google"
+  ],
+  "bugs": {
+    "url": "https://github.com/nobodyMO/node-red-contrib-diameter/issues"
+  },
+  "homepage": "https://github.com/nobodyMO/node-red-contrib-diameter",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nobodyMO/node-red-contrib-diameter.git"
+  },
+  "node-red": {
+    "nodes": {
+      "diameter": "diameter.js"
+    }
+  }
+}
