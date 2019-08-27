@@ -1,0 +1,354 @@
+<!--
+  Copyright 2013-2017 nobodyMO.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/x-red" data-template-name="Diameter in">
+    <div class="form-row">
+        <label for="node-input-diameterHostId"><i class="fa fa-globe"></i> Own Diameter-Identity</label>
+        <input type="text" id="node-input-diameterHostId">
+    </div>
+    <div class="form-row">
+        <label for="node-input-diameterDestination"><i class="fa fa-globe"></i> Destination</label>
+        <input type="text" id="node-input-diameterDestination">
+    </div>
+
+	<div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+ 
+</script>
+
+<script type="text/x-red" data-help-name="Diameter in">
+    <p>Diameter Server Host input node.</p>
+    <p>Outputs an object called <b>msg</b> containing <b>msg.topic, msg.payload, msg.ownHostAddress, msg.ownHostPort, msg.ownDiameterIdentity, msg.ownVendorId, msg.ownReam</b> and <b>msg.requestID.</b></p>	
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('Diameter in',{
+        category: 'input',
+        defaults: {
+            name: {value:""},
+			diameterHostId: {type:"diameter-host", required:true},
+			diameterDestination: {type:"diameter-destination", required:false}
+        },
+        color:"#a8bfd8",
+        inputs:0,
+        outputs:1,
+        icon: "diameter.png",
+        label: function() {
+            return this.name||this.topic||"Diameter";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="Diameter out">
+	<div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="Diameter out">
+    <p>Sends Diameter response back to Peer. Must be connected to Diameter in node.</p>
+    <p><b>msg.payload</b> must contain an array with Diameter AVP.</p>
+</script>
+
+<script type="text/javascript">
+RED.nodes.registerType('Diameter out',{
+        category: 'output',
+        defaults: {
+            name: {value:""}
+         },
+        color:"#a8bfd8",
+        inputs:1,
+        outputs:0,
+        icon: "diameter.png",
+        align: "right",
+        label: function() {
+            return this.name||this.topic||"Diameter";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="Diameter send">
+    <div class="form-row">
+        <label for="node-input-diameterHostId"><i class="fa fa-globe"></i> Own Diameter-Identity</label>
+        <input type="text" id="node-input-diameterHostId">
+    </div>
+    <div class="form-row">
+        <label for="node-input-diameterDestination"><i class="fa fa-globe"></i> Destination</label>
+        <input type="text" id="node-input-diameterDestination">
+    </div>
+	<div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+	
+</script>
+
+<script type="text/x-red" data-help-name="Diameter send">
+    <p>Sends a diameter message to a host. The message name has to be in <b>msg.topic</b>. The AVP has to be in an array in <b>msg.payload</b>. The response is in <b>msg.payload</b>.</p> 
+	<p>The target host parameters could be defined in the node or in the message object (should not be in msg.payload): <b>msg.host</p> IP Address of destination host. <b>msg.port</p> Port of destination host.</p>
+</script>
+
+<script type="text/javascript">
+RED.nodes.registerType('Diameter send',{
+        category: 'function',
+        defaults: {
+            name: {value:""},
+			diameterHostId: {type:"diameter-host", required:true},
+			diameterDestination: {type:"diameter-destination", required:true}
+        },
+        color:"#a8bfd8",
+        inputs:1,
+        outputs:1,
+        icon: "diameter.png",
+        label: function() {
+            return this.name||this.topic||"Diameter get";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
+
+
+
+<script type="text/x-red" data-template-name="diameter-host">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</span></label>
+        <input type="text" id="node-config-input-name">
+    </div>
+    <div class="form-row">
+        <ul style="background: #fff; min-width: 600px; margin-bottom: 20px;" id="node-config-diameter-host-tabs"></ul>
+    </div>
+    <div id="node-config-diameter-host-tabs-content" style="min-height: 170px;">
+        <div id="diameter-host-tab-connection" style="display:none">
+            <div class="form-row">
+                <label for="node-config-input-host"><i class="fa fa-globe"></i> Host IP</label>
+                <input class="input-append-left" type="text" id="node-config-input-host" style="width:40%;">
+                <label for="node-config-input-port" style="margin-left:20px; width:43px; "> Port</span></label>
+                <input type="text" id="node-config-input-port" style="width:55px">
+            </div>
+            <div class="form-row">
+                <input type="checkbox" id="node-config-input-serverMode" style="display: inline-block; width: auto; vertical-align: top;">
+                <label for="node-config-input-serverMode" style="width: auto">Diameter Server starten</label>
+             </div>
+            <div class="form-row">
+                <label for="node-config-input-timeout" style="width: auto"><i class="fa fa-clock-o"></i> Verbindungs-Timeout</label>
+                <input type="text" id="node-config-input-timeout" style="width: 50px">
+                <label for="node-config-input-watchdogInterval" style="width: auto"><i class="fa fa-clock-o"></i> Watchdog Interval</label>
+                <input type="text" id="node-config-input-watchdogInterval" style="width: 50px">
+                <input type="checkbox" id="node-config-input-keepalive" style="margin-left: 30px; height: 1em;display: inline-block; width: auto; vertical-align: middle;">
+                <label for="node-config-input-keepalive" style="width: auto;"> Verbindung offen halten</label>
+            </div>
+        </div>
+        <div id="diameter-host-tab-diameter" style="display:none">
+			<div class="form-row">
+				<label for="node-config-input-diameterIdentity"><i class="fa fa-tag"></i> Diameter-Identity</label>
+				<input type="text" id="node-config-input-diameterIdentity">
+			</div>
+			<div class="form-row">
+				<label for="node-config-input-diameterRealm"><i class="fa fa-globe"></i> Diameter-Realm</label>
+				<input type="text" id="node-config-input-diameterRealm">
+			</div>		
+            <div class="form-row">
+                <label for="node-config-input-applicationJson"><i class="fa fa-user"></i> Application JSON for CER</label>
+                <input type="text" id="node-config-input-applicationJson" style="width:70%">
+            </div>
+			<div class="form-row">
+				<label for="node-config-input-vendorId"><i class="fa fa-tag"></i> Own Vendor-ID</label>
+				<input type="text" id="node-config-input-vendorId">
+			</div>
+			<div class="form-row">
+				<label for="node-config-input-productName"><i class="fa fa-tag"></i> Own productName</label>
+				<input type="text" id="node-config-input-productName">
+			</div> 
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('diameter-host',{
+        category: 'config',
+        defaults: {
+            name: {value:""},
+            host: {value:"",required:false},
+            port: {value:3868,required:true,validate:RED.validators.number(true)},
+            serverMode: {required: false},
+            watchdogInterval: {value:60,validate:RED.validators.number()},
+            timeout: {value:300,required:true,validate:RED.validators.number()},
+            keepalive: {value:false},
+            diameterIdentity: {value:"",required:true},
+            diameterRealm: {value:"",required:true},
+            applicationJson: {value:"",required:true},
+			vendorId: {value:""},
+			productName: {value:""}
+			
+        },
+        label: function() {
+            if (this.name) {
+                return this.name;
+            }
+            var b = this.host;
+            if (b === "") { b = "undefined"; }
+            var lab = "";
+            lab = (this.diameterIdentity?this.diameterIdentity+"@":"")+b;
+            if (b.indexOf("://") === -1){
+                if (!this.port){ lab = lab + ":3868"; }
+                else { lab = lab + ":" + this.port; }
+            }
+            return lab;
+        },
+        oneditprepare: function () {
+            var tabs = RED.tabs.create({
+                id: "node-config-diameter-host-tabs",
+                onchange: function(tab) {
+                    $("#node-config-diameter-host-tabs-content").children().hide();
+                    $("#" + tab.id).show();
+                }
+            });
+            tabs.addTab({
+                id: "diameter-host-tab-connection",
+                label: "Host"
+            });
+            tabs.addTab({
+                id: "diameter-host-tab-diameter",
+                label: "Diameter Parameter"
+            });
+
+			$("#node-config-input-applicationJson").typedInput({types: ['json']});
+			
+            setTimeout(function() { tabs.resize(); },0);
+            if (typeof this.serverMode === 'undefined') {
+                this.serverMode = false;
+                $("#node-config-input-serverMode").prop("checked",false);
+            }
+            if (typeof this.keepalive === 'undefined') {
+                this.keepalive = false;
+                $("#node-config-input-keepalive").prop("checked",false);
+            }
+            if (typeof this.watchdogInterval === 'undefined') {
+                this.watchdogInterval = 60;
+                $("#node-config-input-watchdogInterval").val(this.watchdogInterval);
+            }
+           if (typeof this.timeout === 'undefined') {
+                this.timeout = 300;
+                $("#node-config-input-timeout").val(this.timeout);
+            }
+
+ 
+            function updatePortEntry(){
+                var disabled = $("#node-config-input-port").prop("disabled");
+                if ($("#node-config-input-host").val().indexOf("://") === -1){
+                    if (disabled){
+                        $("#node-config-input-port").prop("disabled", false);
+                    }
+                }
+                else {
+                    if (!disabled){
+                        $("#node-config-input-port").prop("disabled", true);
+                    }
+                }
+            }
+            $("#node-config-input-host").change(function() {
+                updatePortEntry();
+            });
+            $("#node-config-input-host").on( "keyup", function() {
+                updatePortEntry();
+            });
+            setTimeout(updatePortEntry,50);
+
+        }
+    });
+</script>
+
+
+
+<script type="text/x-red" data-template-name="diameter-destination">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</span></label>
+        <input type="text" id="node-config-input-name">
+    </div>
+	<div class="form-row">
+		<label for="node-config-input-host"><i class="fa fa-globe"></i> Host IP</label>
+		<input class="input-append-left" type="text" id="node-config-input-host" style="width:40%;">
+		<label for="node-config-input-port" style="margin-left:20px; width:43px; "> Port</span></label>
+		<input type="text" id="node-config-input-port" style="width:55px">
+	</div>
+	<div class="form-row">
+		<label for="node-config-input-diameterIdentity"><i class="fa fa-tag"></i> Diameter-Identity</label>
+		<input type="text" id="node-config-input-diameterIdentity">
+	</div>
+	<div class="form-row">
+		<label for="node-config-input-diameterRealm"><i class="fa fa-globe"></i> Diameter-Realm</label>
+		<input type="text" id="node-config-input-diameterRealm">
+	</div>		
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('diameter-destination',{
+        category: 'config',
+        defaults: {
+            name: {value:""},
+            host: {value:"",required:false},
+            port: {value:3868,required:true,validate:RED.validators.number(true)},
+            diameterIdentity: {value:"",required:true},
+            diameterRealm: {value:"",required:true}			
+        },
+        label: function() {
+            if (this.name) {
+                return this.name;
+            }
+            var b = this.host;
+            if (b === "") { b = "undefined"; }
+            var lab = "";
+            lab = (this.diameterIdentity?this.diameterIdentity+"@":"")+b;
+            if (b.indexOf("://") === -1){
+                if (!this.port){ lab = lab + ":3868"; }
+                else { lab = lab + ":" + this.port; }
+            }
+            return lab;
+        },
+        oneditprepare: function () {
+ 
+            function updatePortEntry(){
+                var disabled = $("#node-config-input-port").prop("disabled");
+                if ($("#node-config-input-host").val().indexOf("://") === -1){
+                    if (disabled){
+                        $("#node-config-input-port").prop("disabled", false);
+                    }
+                }
+                else {
+                    if (!disabled){
+                        $("#node-config-input-port").prop("disabled", true);
+                    }
+                }
+            }
+            $("#node-config-input-host").change(function() {
+                updatePortEntry();
+            });
+            $("#node-config-input-host").on( "keyup", function() {
+                updatePortEntry();
+            });
+            setTimeout(updatePortEntry,50);
+
+        }
+    });
+</script>
